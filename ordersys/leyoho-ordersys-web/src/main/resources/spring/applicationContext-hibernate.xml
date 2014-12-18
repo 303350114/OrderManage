@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- <beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd"> -->
+<beans>	
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:spring/prop.properties</value>
+			</list>
+		</property>
+	</bean>
+	 <!--<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="${database.driver}"/>
+		<property name="url" value="${database.url}"/>
+		<property name="username" value="${database.username}"/>
+		<property name="password" value="${database.password}"/>
+		<property name="maxActive" value="30"/>
+		<property name="maxIdle" value="10"/>
+		<property name="maxWait" value="1000"/>
+		<property name="defaultAutoCommit" value="true"/>
+	</bean> 
+	
+	 <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driverClassName}" />
+        <property name="jdbcUrl" value="${jdbc.url}" />
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialPoolSize" value="10"/>
+        <property name="minPoolSize" value="10"/>
+        <property name="maxPoolSize" value="1000"/>
+        <property name="acquireIncrement" value="5"/>
+        <property name="maxIdleTime" value="20"/>
+        <property name="idleConnectionTestPeriod" value="10"/>
+        <property name="maxStatements" value="0"/>
+        <property name="maxStatementsPerConnection" value="0"/>
+        <property name="checkoutTimeout" value="0"/>
+        <property name="acquireRetryDelay" value="1000"/>
+        <property name="acquireRetryAttempts" value="30"/>
+        <property name="breakAfterAcquireFailure" value="false"/>
+		<property name="autoCommitOnClose" value="false"/>
+		<property name="testConnectionOnCheckout" value="false"/>
+        <property name="maxIdleTimeExcessConnections" value="30"/>
+    </bean>   -->
+
+	<!-- ==================================================================== -->
+	<!-- DataSource Factory                                                   -->
+	<!-- ==================================================================== -->
+	<bean id="dataSourceFactory"  class="com.leyoho.ordersys.configuration.DataSourceFactory" 
+		factory-method="getInstance" destroy-method="clearInstance">
+	</bean>
+	
+	<!-- ==================================================================== -->
+	<!-- DataSource                                                           -->
+	<!-- ==================================================================== -->
+
+	<!-- PCS/RAV data source -->
+	<bean id="hramsDataSource" factory-bean="dataSourceFactory" factory-method="getDataSource" >
+		<constructor-arg value="hramsDataSource" />
+	</bean>		
+	
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="hramsDataSource"/>
+		<property name="packagesToScan"	value="com/leyoho/ordersys/entity/"/> 
+					 
+		<property name="mappingDirectoryLocations">
+			<list>
+				<value>classpath*:/hibernateMappingFiles/</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					${database.dialect}
+				</prop>
+				<prop key="hibernate.show_sql">
+					${database.showSql}
+				</prop>
+				<prop key="hibernate.cache.region.factory_class">
+					org.hibernate.cache.ehcache.EhCacheRegionFactory
+				</prop>
+				<prop key="hibernate.cache.use_query_cache">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+</beans>

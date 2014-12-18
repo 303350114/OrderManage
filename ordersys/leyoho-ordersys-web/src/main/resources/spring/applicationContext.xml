@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd"
+	default-autowire="byName" default-lazy-init="false">
+	
+	<!-- Configurer that replaces ${...} placeholders with values from a properties file -->
+    <!-- (in this case, JDBC-related settings for the dataSource definition below) -->
+    <context:property-placeholder location="classpath:spring/prop.properties"/>
+    <!-- Enable @Transactional support -->
+    <tx:annotation-driven/>
+    <context:annotation-config />
+    <!-- Enable @AspectJ support -->
+    <aop:aspectj-autoproxy/>
+    
+    <aop:config>
+        <aop:advisor id="managerTx" advice-ref="txAdvice" pointcut="execution(* com.leyoho.ordersys.service.*.*(..))"/>
+    </aop:config>
+    
+    <tx:advice id="txAdvice">
+        <tx:attributes>
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+		    <tx:method name="inse*" propagation="REQUIRED" rollback-for="Exception"/> 
+		    <tx:method name="remove*" propagation="REQUIRED" rollback-for="Exception"/> 
+		    <tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception"/>
+		    <tx:method name="edit*" propagation="REQUIRED" rollback-for="Exception"/> 
+		    <tx:method name="do*" propagation="REQUIRED" rollback-for="Exception"/> 
+		    <tx:method name="create*" propagation="REQUIRED" rollback-for="Exception"/> 
+		    <tx:method name="*Update" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- Scans for @Repository, @Service and @Component -->
+    <context:component-scan base-package="com.leyoho.ordersys"/>
+	
+</beans>
